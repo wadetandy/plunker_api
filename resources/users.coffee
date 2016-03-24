@@ -11,9 +11,14 @@ apiErrors = require("../errors")
 
 module.exports.authenticateGithubToken = authenticateGithubToken = (token, cb) ->
   return cb() unless token
-  
+
+  githubUrl = require('url').parse(nconf.get("oauth:github:url") || 'https://github.com')
+  protocol = githubUrl.protocol.split(':')[0]
+  apiHost = if githubUrl.host == 'github.com' then 'api.github.com' else githubUrl.host
+  apiPath = if githubUrl.host == 'github.com' then '' else '/api/v3'
+
   config =
-    url: "https://api.github.com/user?access_token=#{token}"
+    url: "#{protocol}://#{apiHost}#{apiPath}/user?access_token=#{token}"
     json: true
     timeout: 6000
     headers: { 'User-Agent': "plunker-api" }
